@@ -1,0 +1,46 @@
+import requests
+import json
+
+# URL for the Beacon Chain API endpoint (this URL points to a public API, such as Beaconcha.in)
+API_URL = "https://beaconcha.in/api/v1/validator"
+
+def fetch_validator_performance(validator_id):
+    try:
+        # Construct the URL to fetch validator data
+        url = f"{API_URL}/{validator_id}"
+        
+        # Send a GET request to the Beacon Chain API
+        response = requests.get(url)
+        
+        # Check if the request was successful (HTTP status 200)
+        if response.status_code == 200:
+            # Parse the JSON response
+            data = response.json()
+            
+            # Display the relevant validator performance data
+            if 'data' in data:
+                validator_data = data['data']
+                performance_data = {
+                    "validator_id": validator_data['validator']['id'],
+                    "performance": validator_data['performance'],
+                    "total_rewards": validator_data['performance']['totalRewards'],
+                    "total_inclusion_rewards": validator_data['performance']['inclusionRewards'],
+                    "total_proposer_rewards": validator_data['performance']['proposerRewards'],
+                    "performance_score": validator_data['performance']['performanceScore'],
+                    "missed_inclusions": validator_data['performance']['missedInclusions'],
+                    "missed_proposals": validator_data['performance']['missedProposals']
+                }
+                return performance_data
+            else:
+                print("No data found for this validator.")
+        else:
+            print(f"Error fetching data: {response.status_code}")
+    except Exception as e:
+        print(f"An error occurred: {e}")
+
+# Example usage
+if __name__ == "__main__":
+    validator_id = "12345"  # Replace with the actual validator ID
+    performance = fetch_validator_performance(validator_id)
+    if performance:
+        print(json.dumps(performance, indent=4))
